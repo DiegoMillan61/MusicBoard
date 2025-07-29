@@ -1,7 +1,18 @@
 <template>
   <div class="setlist-view">
+    <!-- Debug Info -->
+    <div class="debug-info" style="background: #f0f0f0; padding: 10px; margin-bottom: 20px; font-size: 12px;">
+      <strong>Debug Info:</strong><br>
+      Props setlists length: {{ setlists?.length || 0 }}<br>
+      Store setlists length: {{ store.setlists?.length || 0 }}<br>
+      Store hasSetlists: {{ store.hasSetlists }}<br>
+      Store loading: {{ store.loading }}<br>
+      Store error: {{ store.error }}<br>
+      Condition (setlists && setlists.length > 0): {{ setlists && setlists.length > 0 }}
+    </div>
+
     <!-- Estado cuando hay setlists -->
-    <div v-if="hasSetlists" class="setlists-container">
+    <div v-if="setlists && setlists.length > 0" class="setlists-container">
       <div class="setlists-grid">
         <div 
           v-for="setlist in setlists" 
@@ -65,7 +76,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, watch, onMounted } from 'vue'
 import { useMusicBoardStore } from '../stores/musicBoard.js'
 
 const props = defineProps({
@@ -79,7 +90,19 @@ const emit = defineEmits(['open-setlist', 'reload-data'])
 
 // Usar el store para acceder a las funciones auxiliares
 const store = useMusicBoardStore()
-const { getSetlistSongs, hasSetlists } = store
+const { getSetlistSongs } = store
+
+// Debug - ver qué datos estamos recibiendo
+onMounted(() => {
+  console.log('🔍 SetlistView mounted with setlists:', props.setlists)
+  console.log('🔍 Setlists length:', props.setlists?.length)
+  console.log('🔍 Store setlists:', store.setlists)
+})
+
+watch(() => props.setlists, (newSetlists) => {
+  console.log('🔍 SetlistView setlists changed:', newSetlists)
+  console.log('🔍 New setlists length:', newSetlists?.length)
+}, { deep: true })
 
 const getSetlistSongsCount = (setlist) => {
   return getSetlistSongs(setlist).length

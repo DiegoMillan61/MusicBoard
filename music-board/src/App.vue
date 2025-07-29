@@ -10,7 +10,6 @@ import { useMusicBoardStore } from './stores/musicBoard.js'
 
 // Usar el store Pinia
 const store = useMusicBoardStore()
-const { setlists, songs, loading, error, hasSetlists, loadAllData, getSetlistSongs } = store
 
 const boardData = ref({
   id: 'board-1',
@@ -38,7 +37,7 @@ const formatDate = (dateString) => {
 
 onMounted(() => {
   console.log('🚀 App mounted, loading data...')
-  loadAllData()
+  store.loadAllData()
 })
 </script>
 
@@ -49,22 +48,22 @@ onMounted(() => {
 
   <main>
     <!-- Estado de carga -->
-    <div v-if="loading" class="loading-state">
+    <div v-if="store.loading" class="loading-state">
       <p>Cargando datos de Supabase...</p>
     </div>
 
     <!-- Estado de error -->
-    <div v-if="error" class="error-state">
-      <p>Error: {{ error }}</p>
-      <button @click="loadAllData">Reintentar</button>
+    <div v-if="store.error" class="error-state">
+      <p>Error: {{ store.error }}</p>
+      <button @click="store.loadAllData">Reintentar</button>
     </div>
 
     <!-- Contenido principal -->
-    <div v-if="!loading && !error">
+    <div v-if="!store.loading && !store.error">
       <SetlistView 
-        :setlists="setlists"
+        :setlists="store.setlists"
         @open-setlist="openSetlist"
-        @reload-data="loadAllData"
+        @reload-data="store.loadAllData"
       />
     </div>
 
@@ -79,14 +78,14 @@ onMounted(() => {
           <div class="setlist-info">
             <p><strong>Venue:</strong> {{ selectedSetlist?.venue || 'No venue' }}</p>
             <p><strong>Date:</strong> {{ formatDate(selectedSetlist?.date) }}</p>
-            <p><strong>Total Songs:</strong> {{ getSetlistSongs(selectedSetlist)?.length || 0 }}</p>
+            <p><strong>Total Songs:</strong> {{ store.getSetlistSongs(selectedSetlist)?.length || 0 }}</p>
           </div>
           <div class="songs-list">
             <h3>Songs</h3>
-            <div v-if="getSetlistSongs(selectedSetlist).length === 0" class="no-songs">
+            <div v-if="store.getSetlistSongs(selectedSetlist).length === 0" class="no-songs">
               <p>No hay canciones en este setlist.</p>
             </div>
-            <SongCard v-for="song in getSetlistSongs(selectedSetlist)" :key="song.id" :song="song"></SongCard>
+            <SongCard v-for="song in store.getSetlistSongs(selectedSetlist)" :key="song.id" :song="song"></SongCard>
           </div>
         </div>
       </div>
